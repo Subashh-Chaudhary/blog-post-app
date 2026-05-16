@@ -1,31 +1,22 @@
 import { Catch, HttpException } from '@nestjs/common';
 import { GqlExceptionFilter } from '@nestjs/graphql';
+import { GraphQLError } from 'graphql';
 
 @Catch(HttpException)
 export class GraphQLExceptionFilter implements GqlExceptionFilter {
-  catch(exception: HttpException, host: any) {
-    if (host.getType() === 'graphql') {
-      const response = exception.getResponse();
-      const status = exception.getStatus();
+  catch(exception: HttpException) {
+    const response = exception.getResponse();
+    const status = exception.getStatus();
 
-      // Return a standard Apollo Error format for client consistency
-      return new Error(
-        JSON.stringify({
-          statusCode: status,
-          message: typeof response === 'string' ? response : (response as any).message,
-          error: (response as any).error,
-        }),
-      );
-    }
-    
-    // Allow HTTP exceptions to bubble up if it's an HTTP request
-    if (host.getType() === 'http') {
-        const ctx = host.switchToHttp();
-        const response = ctx.getResponse();
-        const status = exception.getStatus();
-        response.status(status).json(exception.getResponse());
-    }
+    const message = typeof response === 'string' ? response : (response as any).message;
+    const error = (response as any).error;
 
-    return exception;
+    return new GraphQLError(message, {
+      extensions: {
+        code: status >= 500 ? 'INTERNAL_SERVER_ERROR' : 'BAD_USER_INPUT',
+        http: { status },
+        details: error,
+      },
+    });
   }
 }

@@ -8,6 +8,23 @@ type AuthResponse {
   user: User!
 }
 
+type Comment {
+  _id: ID!
+  content: String!
+  createdAt: DateTime!
+  parentCommentId: ID
+  postId: ID!
+  updatedAt: DateTime!
+  user: User
+  userId: ID!
+}
+
+input CreateCommentInput {
+  content: String!
+  parentCommentId: ID
+  postId: ID!
+}
+
 input CreatePostInput {
   content: String!
   published: Boolean
@@ -25,23 +42,31 @@ input LoginDto {
 }
 
 type Mutation {
+  addComment(createCommentInput: CreateCommentInput!): Comment!
   createPost(createPostInput: CreatePostInput!): Post!
-  deletePost(id: String!): Boolean!
+  deleteComment(id: ID!): Boolean!
+  deletePost(id: ID!): Boolean!
   login(loginDto: LoginDto!): AuthResponse!
   register(registerDto: RegisterDto!): AuthResponse!
+  updateComment(id: ID!, updateCommentInput: UpdateCommentInput!): Comment!
+  updatePost(id: ID!, updatePostInput: UpdatePostInput!): Post!
 }
 
 type Post {
+  _id: ID!
+  author: User
+  authorId: ID!
+  commentsCount: Int!
   content: String!
   createdAt: DateTime!
-  id: ID!
   published: Boolean!
   title: String!
   updatedAt: DateTime!
 }
 
 type Query {
-  post(id: String!): Post!
+  commentsByPost(postId: ID!): [Comment!]!
+  post(id: ID!): Post!
   posts: [Post!]!
 }
 
@@ -49,6 +74,16 @@ input RegisterDto {
   email: String!
   fullName: String!
   password: String!
+}
+
+input UpdateCommentInput {
+  content: String!
+}
+
+input UpdatePostInput {
+  content: String
+  published: Boolean
+  title: String
 }
 
 type User {
