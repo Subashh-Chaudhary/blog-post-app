@@ -2,6 +2,12 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type AuthResponse {
+  accessToken: String!
+  refreshToken: String!
+  user: User!
+}
+
 input CreatePostInput {
   content: String!
   published: Boolean
@@ -13,9 +19,16 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+input LoginDto {
+  email: String!
+  password: String!
+}
+
 type Mutation {
   createPost(createPostInput: CreatePostInput!): Post!
   deletePost(id: String!): Boolean!
+  login(loginDto: LoginDto!): AuthResponse!
+  register(registerDto: RegisterDto!): AuthResponse!
 }
 
 type Post {
@@ -30,4 +43,18 @@ type Post {
 type Query {
   post(id: String!): Post!
   posts: [Post!]!
+}
+
+input RegisterDto {
+  email: String!
+  fullName: String!
+  password: String!
+}
+
+type User {
+  _id: ID!
+  createdAt: DateTime!
+  email: String!
+  fullName: String!
+  updatedAt: DateTime!
 }

@@ -11,6 +11,8 @@ import { DatabaseModule } from './database/database.module';
 import { getGraphQLConfig } from './config/graphql.config';
 import { GraphQLExceptionFilter } from './common/filters/graphql-exception.filter';
 import { PostsModule } from './modules/posts/posts.module';
+import { UsersModule } from './modules/users/users.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -26,6 +28,8 @@ import { PostsModule } from './modules/posts/posts.module';
     }),
     DatabaseModule,
     PostsModule,
+    UsersModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [
