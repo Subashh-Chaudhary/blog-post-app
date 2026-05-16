@@ -1,0 +1,22 @@
+services:
+  mongo:
+    image: mongo:7.0
+    container_name: blogpost-db
+    restart: unless-stopped
+    ports:
+      - "${MONGO_PORT}:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_DATABASE}
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok", "mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@127.0.0.1:27017/admin?authSource=admin"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+volumes:
+  mongo_data:
