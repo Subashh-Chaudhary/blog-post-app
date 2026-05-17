@@ -11,9 +11,20 @@ export class GraphQLExceptionFilter implements GqlExceptionFilter {
     const message = typeof response === 'string' ? response : (response as any).message;
     const error = (response as any).error;
 
+    let code: string;
+    if (status === 401) {
+      code = 'UNAUTHENTICATED';
+    } else if (status === 403) {
+      code = 'FORBIDDEN';
+    } else if (status >= 500) {
+      code = 'INTERNAL_SERVER_ERROR';
+    } else {
+      code = 'BAD_USER_INPUT';
+    }
+
     return new GraphQLError(message, {
       extensions: {
-        code: status >= 500 ? 'INTERNAL_SERVER_ERROR' : 'BAD_USER_INPUT',
+        code,
         http: { status },
         details: error,
       },

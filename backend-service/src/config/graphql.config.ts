@@ -14,18 +14,24 @@ export const getGraphQLConfig = (
     playground: !isProduction,
     introspection: !isProduction,
     formatError: (error) => {
-      // Abstracting error details for a clean response format
+      // Preserve extensions.code so Apollo Client errorLink can detect UNAUTHENTICATED
       const originalError = error.extensions?.originalError as any;
+      const code = error.extensions?.code;
+      const httpStatus = (error.extensions?.http as any)?.status;
+
       if (!originalError) {
         return {
           message: error.message,
-          code: error.extensions?.code,
+          extensions: { code, http: { status: httpStatus } },
         };
       }
       return {
         message: originalError.message,
-        code: error.extensions?.code,
-        details: originalError.error || originalError.message,
+        extensions: {
+          code,
+          http: { status: httpStatus },
+          details: originalError.error || originalError.message,
+        },
       };
     },
   };

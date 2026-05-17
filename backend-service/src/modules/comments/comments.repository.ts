@@ -29,7 +29,7 @@ export class CommentsRepository {
   }
 
   async update(id: string, updateData: UpdateCommentInput): Promise<Comment | null> {
-    return this.commentModel.findByIdAndUpdate(id, updateData, { new: true }).exec();
+    return this.commentModel.findByIdAndUpdate(id, updateData, { returnDocument: 'after' }).exec();
   }
 
   async delete(id: string): Promise<Comment | null> {

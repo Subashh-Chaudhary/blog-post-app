@@ -28,7 +28,7 @@ export class PostsRepository {
   }
 
   async update(id: string, updateData: Partial<Post>): Promise<Post | null> {
-    return this.postModel.findByIdAndUpdate(id, updateData, { new: true }).exec();
+    return this.postModel.findByIdAndUpdate(id, updateData, { returnDocument: 'after' }).exec();
   }
 
   async delete(id: string): Promise<Post | null> {
