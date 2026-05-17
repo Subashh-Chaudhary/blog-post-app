@@ -27,9 +27,11 @@ export default function CommentsSection({ postId }: CommentsSectionProps) {
   const { user } = useAuthStore();
   const { addToast } = useToastStore();
   const [newComment, setNewComment] = useState("");
+  const [loadingMore, setLoadingMore] = useState(false);
+  const limit = 5;
   
   const { data, loading, fetchMore, refetch } = useQuery<{ commentsByPost: PaginatedComments }>(GET_COMMENTS_QUERY, {
-    variables: { postId, paginationInput: { page: 1, limit: 20 } },
+    variables: { postId, paginationInput: { page: 1, limit } },
     notifyOnNetworkStatusChange: true,
   });
 
@@ -51,6 +53,33 @@ export default function CommentsSection({ postId }: CommentsSectionProps) {
     },
     onError: (err) => addToast(err.message || "Failed to post comment", "error"),
   });
+
+  const handleLoadMore = async () => {
+    if (!data?.commentsByPost.hasNextPage || loadingMore) return;
+    setLoadingMore(true);
+    try {
+      const nextPage = (data.commentsByPost.currentPage || 1) + 1;
+      await fetchMore({
+        variables: { paginationInput: { page: nextPage, limit } },
+        updateQuery: (prev, { fetchMoreResult }) => {
+          if (!fetchMoreResult) return prev;
+          return {
+            commentsByPost: {
+              ...fetchMoreResult.commentsByPost,
+              items: [
+                ...(prev.commentsByPost.items || []),
+                ...(fetchMoreResult.commentsByPost.items || [])
+              ]
+            }
+          };
+        }
+      });
+    } catch (err) {
+      console.error("Error loading more comments:", err);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
 
   const handleAddComment = (e: React.FormEvent) => {
     e.preventDefault();
@@ -119,11 +148,28 @@ export default function CommentsSection({ postId }: CommentsSectionProps) {
             ))}
           </div>
         ) : comments.length > 0 ? (
-          <AnimatePresence initial={false}>
-            {comments.map((comment) => (
-              <CommentItem key={comment._id} comment={comment} currentUser={user} onRefresh={() => refetch()} postId={postId} />
-            ))}
-          </AnimatePresence>
+          <>
+            <AnimatePresence initial={false}>
+              {comments.map((comment) => (
+                <CommentItem key={comment._id} comment={comment} currentUser={user} onRefresh={() => refetch()} postId={postId} />
+              ))}
+            </AnimatePresence>
+
+            {data?.commentsByPost.hasNextPage && (
+              <div className="flex justify-center pt-4">
+                <button
+                  onClick={handleLoadMore}
+                  disabled={loadingMore}
+                  className="px-6 py-2 rounded-full border border-border hover:border-accent hover:text-accent font-medium text-xs transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed bg-surface/50 hover:bg-surface font-mono"
+                >
+                  {loadingMore ? (
+                    <span className="w-3.5 h-3.5 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+                  ) : null}
+                  Load More Comments
+                </button>
+              </div>
+            )}
+          </>
         ) : (
           <div className="text-center py-10 text-textMuted text-sm font-mono border border-dashed border-border rounded-xl">
             No comments yet. Be the first to start the discussion!
