@@ -47,6 +47,7 @@ type Mutation {
   deleteComment(id: ID!): Boolean!
   deletePost(id: ID!): Boolean!
   login(loginDto: LoginDto!): AuthResponse!
+  refresh(refreshToken: String!): AuthResponse!
   register(registerDto: RegisterDto!): AuthResponse!
   updateComment(id: ID!, updateCommentInput: UpdateCommentInput!): Comment!
   updatePost(id: ID!, updatePostInput: UpdatePostInput!): Post!

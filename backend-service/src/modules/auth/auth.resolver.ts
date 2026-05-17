@@ -21,4 +21,11 @@ export class AuthResolver {
   ): Promise<AuthResponse> {
     return this.authService.login(loginDto);
   }
+
+  @Mutation(() => AuthResponse)
+  async refresh(
+    @Args('refreshToken') refreshToken: string,
+  ): Promise<AuthResponse> {
+    return this.authService.refresh(refreshToken);
+  }
 }

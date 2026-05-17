@@ -43,6 +43,23 @@ export class AuthService {
     return this.generateTokens(user);
   }
 
+  async refresh(refreshToken: string): Promise<AuthResponse> {
+    try {
+      const payload = await this.jwtService.verifyAsync(refreshToken, {
+        secret: this.configService.getOrThrow<string>('JWT_REFRESH_SECRET'),
+      });
+      
+      const user = await this.usersService.findById(payload.sub);
+      if (!user) {
+        throw new UnauthorizedException('User not found');
+      }
+
+      return this.generateTokens(user);
+    } catch (error) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+  }
+
   private async generateTokens(user: User): Promise<AuthResponse> {
     const payload = { sub: user._id, email: user.email };
     
