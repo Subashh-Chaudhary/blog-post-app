@@ -14,7 +14,7 @@ import { onError } from "@apollo/client/link/error";
 import { useAuthStore } from "../store/useAuthStore";
 
 const httpLink = createHttpLink({
-  uri: "http://localhost:5000/graphql",
+  uri: process.env.NEXT_PUBLIC_GRAPHQL_API_URL,
 });
 
 // ─── Token Utilities ────────────────────────────────────────────────────────

@@ -10,7 +10,12 @@ export async function POST() {
       return NextResponse.json({ error: 'No refresh token' }, { status: 401 });
     }
 
-    const response = await fetch('http://localhost:5000/graphql', {
+    const graphqlUrl = process.env.NEXT_PUBLIC_GRAPHQL_API_URL;
+    if (!graphqlUrl) {
+      return NextResponse.json({ error: 'GraphQL API URL is not configured' }, { status: 500 });
+    }
+
+    const response = await fetch(graphqlUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
