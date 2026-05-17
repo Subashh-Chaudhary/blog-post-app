@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode } from "react";
+import { ReactNode, useState, useEffect } from "react";
 import {
   ApolloClient,
   InMemoryCache,
@@ -115,5 +115,40 @@ const client = new ApolloClient({
 });
 
 export default function ApolloWrapper({ children }: { children: ReactNode }) {
+  const { accessToken, setAuth, clearAuth } = useAuthStore();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const initAuth = async () => {
+      try {
+        const res = await fetch("/api/auth/refresh", { method: "POST" });
+        if (res.ok) {
+          const newAuth = await res.json();
+          setAuth(newAuth.accessToken, newAuth.user);
+        } else {
+          clearAuth();
+        }
+      } catch (err) {
+        clearAuth();
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (!accessToken) {
+      initAuth();
+    } else {
+      setLoading(false);
+    }
+  }, [accessToken, setAuth, clearAuth]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background text-textPrimary">
+        <div className="w-8 h-8 border-2 border-border border-t-accent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
   return <ApolloProvider client={client}>{children}</ApolloProvider>;
 }
