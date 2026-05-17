@@ -11,6 +11,18 @@ interface AuthState {
 export const useAuthStore = create<AuthState>((set) => ({
   accessToken: null,
   user: null,
-  setAuth: (accessToken, user) => set({ accessToken, user }),
-  clearAuth: () => set({ accessToken: null, user: null }),
+  setAuth: (accessToken, user) => {
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('accessToken', accessToken);
+      sessionStorage.setItem('user', JSON.stringify(user));
+    }
+    set({ accessToken, user });
+  },
+  clearAuth: () => {
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('accessToken');
+      sessionStorage.removeItem('user');
+    }
+    set({ accessToken: null, user: null });
+  },
 }));

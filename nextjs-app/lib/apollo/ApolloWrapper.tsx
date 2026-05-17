@@ -120,6 +120,25 @@ export default function ApolloWrapper({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const initAuth = async () => {
+      // 1. Try to restore from sessionStorage first if it exists and is not expired
+      const token = sessionStorage.getItem("accessToken");
+      const userStr = sessionStorage.getItem("user");
+
+      if (token && userStr) {
+        try {
+          const payload = JSON.parse(atob(token.split(".")[1]));
+          const isExpired = payload.exp * 1000 < Date.now();
+          if (!isExpired) {
+            setAuth(token, JSON.parse(userStr));
+            setLoading(false);
+            return;
+          }
+        } catch (e) {
+          // Ignore and proceed to refresh
+        }
+      }
+
+      // 2. If no valid sessionStorage token, fall back to silent refresh cookie
       try {
         const res = await fetch("/api/auth/refresh", { method: "POST" });
         if (res.ok) {
