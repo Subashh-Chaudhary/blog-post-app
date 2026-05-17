@@ -21,4 +21,13 @@ export class UsersRepository {
   async findById(id: string): Promise<User | null> {
     return this.userModel.findById(id).exec();
   }
+
+  /**
+   * Bulk-fetch users by a list of IDs in a single DB round-trip.
+   * Used by UserDataLoader to solve the N+1 problem.
+   * Equivalent to: SELECT * FROM users WHERE _id IN (id1, id2, ...)
+   */
+  async findByIds(ids: string[]): Promise<User[]> {
+    return this.userModel.find({ _id: { $in: ids } }).exec();
+  }
 }

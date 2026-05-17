@@ -6,14 +6,16 @@ import {
   GET_COMMENTS_QUERY, 
   ADD_COMMENT_MUTATION, 
   UPDATE_COMMENT_MUTATION, 
-  DELETE_COMMENT_MUTATION 
+  DELETE_COMMENT_MUTATION,
+  GET_POSTS_QUERY,
+  GET_POST_QUERY
 } from "@/lib/graphql/documents";
 import { Comment, PaginatedComments } from "@/lib/graphql/types";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { useToastStore } from "@/lib/store/useToastStore";
 import { formatDistanceToNow } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageSquare, MoreHorizontal, Edit2, Trash2, X, Send } from "lucide-react";
+import { MessageSquare, Edit2, Trash2, Send } from "lucide-react";
 import clsx from "clsx";
 import Link from "next/link";
 
@@ -32,6 +34,16 @@ export default function CommentsSection({ postId }: CommentsSectionProps) {
   });
 
   const [addComment, { loading: isAdding }] = useMutation(ADD_COMMENT_MUTATION, {
+    refetchQueries: [
+      {
+        query: GET_POSTS_QUERY,
+        variables: { paginationInput: { page: 1, limit: 10 } }
+      },
+      {
+        query: GET_POST_QUERY,
+        variables: { id: postId }
+      }
+    ],
     onCompleted: () => {
       setNewComment("");
       refetch();
@@ -109,7 +121,7 @@ export default function CommentsSection({ postId }: CommentsSectionProps) {
         ) : comments.length > 0 ? (
           <AnimatePresence initial={false}>
             {comments.map((comment) => (
-              <CommentItem key={comment._id} comment={comment} currentUser={user} onRefresh={() => refetch()} />
+              <CommentItem key={comment._id} comment={comment} currentUser={user} onRefresh={() => refetch()} postId={postId} />
             ))}
           </AnimatePresence>
         ) : (
@@ -123,7 +135,7 @@ export default function CommentsSection({ postId }: CommentsSectionProps) {
 }
 
 // Separate component for individual comment to manage edit/delete state
-function CommentItem({ comment, currentUser, onRefresh }: { comment: Comment, currentUser: any, onRefresh: () => void }) {
+function CommentItem({ comment, currentUser, onRefresh, postId }: { comment: Comment, currentUser: any, onRefresh: () => void, postId: string }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState(comment.content);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -151,6 +163,16 @@ function CommentItem({ comment, currentUser, onRefresh }: { comment: Comment, cu
   });
 
   const [deleteComment, { loading: isDeleting }] = useMutation(DELETE_COMMENT_MUTATION, {
+    refetchQueries: [
+      {
+        query: GET_POSTS_QUERY,
+        variables: { paginationInput: { page: 1, limit: 10 } }
+      },
+      {
+        query: GET_POST_QUERY,
+        variables: { id: postId }
+      }
+    ],
     onCompleted: () => {
       onRefresh();
       addToast("Comment deleted", "success");

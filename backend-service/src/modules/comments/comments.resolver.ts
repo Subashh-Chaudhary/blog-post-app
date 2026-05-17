@@ -7,7 +7,7 @@ import { UpdateCommentInput } from './dto/update-comment.input';
 import { GqlAuthGuard } from '../../common/guards/gql-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { User } from '../users/models/user.model';
-import { UsersService } from '../users/users.service';
+import { UserDataLoader } from '../../common/dataloaders/user.dataloader';
 import { PaginationInput } from '../../common/dto/pagination.input';
 import { PaginatedComments } from './models/paginated-comments.model';
 import { IPaginatedType } from '../../common/interfaces/paginated.interface';
@@ -16,7 +16,7 @@ import { IPaginatedType } from '../../common/interfaces/paginated.interface';
 export class CommentsResolver {
   constructor(
     private readonly commentsService: CommentsService,
-    private readonly usersService: UsersService,
+    private readonly userDataLoader: UserDataLoader,
   ) {}
 
   @Query(() => PaginatedComments, { name: 'commentsByPost' })
@@ -31,11 +31,8 @@ export class CommentsResolver {
   @ResolveField(() => User, { nullable: true })
   async user(@Parent() comment: Comment): Promise<User | null> {
     if (!comment.userId) return null;
-    try {
-      return await this.usersService.findById(comment.userId);
-    } catch {
-      return null;
-    }
+    // DataLoader batches all user lookups in a single request into ONE DB query
+    return this.userDataLoader.load(comment.userId);
   }
 
   @Mutation(() => Comment)

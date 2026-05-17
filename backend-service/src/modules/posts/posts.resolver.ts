@@ -7,7 +7,7 @@ import { UpdatePostInput } from './dto/update-post.input';
 import { GqlAuthGuard } from '../../common/guards/gql-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { User } from '../users/models/user.model';
-import { UsersService } from '../users/users.service';
+import { UserDataLoader } from '../../common/dataloaders/user.dataloader';
 import { PaginationInput } from '../../common/dto/pagination.input';
 import { PaginatedPosts } from './models/paginated-posts.model';
 import { IPaginatedType } from '../../common/interfaces/paginated.interface';
@@ -16,7 +16,7 @@ import { IPaginatedType } from '../../common/interfaces/paginated.interface';
 export class PostsResolver {
   constructor(
     private readonly postsService: PostsService,
-    private readonly usersService: UsersService,
+    private readonly userDataLoader: UserDataLoader,
   ) {}
 
   @Query(() => PaginatedPosts, { name: 'posts' })
@@ -34,14 +34,9 @@ export class PostsResolver {
 
   @ResolveField(() => User, { nullable: true })
   async author(@Parent() post: Post): Promise<User | null> {
-    if (!post.authorId) {
-      return null;
-    }
-    try {
-      return await this.usersService.findById(post.authorId);
-    } catch (error) {
-      return null;
-    }
+    if (!post.authorId) return null;
+    // DataLoader batches all author lookups in a single request into ONE DB query
+    return this.userDataLoader.load(post.authorId);
   }
 
   @Mutation(() => Post)
