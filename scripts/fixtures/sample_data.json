@@ -1,0 +1,56 @@
+{
+  "description": "Sample credentials and data seeded into the database",
+  "default_password": "password123",
+  "users": [
+    {
+      "fullName": "James Cervantes",
+      "email": "claychristina@example.net",
+      "password": "password123"
+    },
+    {
+      "fullName": "Timothy Beasley",
+      "email": "bianca92@example.com",
+      "password": "password123"
+    },
+    {
+      "fullName": "Raymond Anderson",
+      "email": "gnixon@example.net",
+      "password": "password123"
+    },
+    {
+      "fullName": "Cindy Carney",
+      "email": "richardsonsydney@example.org",
+      "password": "password123"
+    },
+    {
+      "fullName": "Michael Fletcher",
+      "email": "lisa24@example.org",
+      "password": "password123"
+    },
+    {
+      "fullName": "Tina Cook",
+      "email": "iansmith@example.net",
+      "password": "password123"
+    },
+    {
+      "fullName": "Jean Michael",
+      "email": "yschneider@example.org",
+      "password": "password123"
+    },
+    {
+      "fullName": "Ryan Torres",
+      "email": "kennethwilkerson@example.net",
+      "password": "password123"
+    },
+    {
+      "fullName": "Michelle Little",
+      "email": "penashane@example.com",
+      "password": "password123"
+    },
+    {
+      "fullName": "Corey Anderson",
+      "email": "williambowers@example.net",
+      "password": "password123"
+    }
+  ]
+}
