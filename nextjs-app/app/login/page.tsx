@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { motion, AnimatePresence } from "framer-motion";
-import { useMutation } from "@apollo/client/react";
+import { useMutation, useApolloClient } from "@apollo/client/react";
 import { LOGIN_MUTATION } from "@/lib/graphql/documents";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { useToastStore } from "@/lib/store/useToastStore";
@@ -34,6 +34,7 @@ export default function LoginPage() {
     resolver: zodResolver(loginSchema),
   });
 
+  const client = useApolloClient();
   const [loginMutation] = useMutation(LOGIN_MUTATION);
 
   const onSubmit = async (data: LoginFormValues) => {
@@ -52,6 +53,14 @@ export default function LoginPage() {
       });
 
       setAuth(authData.accessToken, authData.user);
+      
+      // Clear Apollo cache and refetch active queries with the new token
+      try {
+        await client.resetStore();
+      } catch (e) {
+        // Ignored if queries fail during reset
+      }
+
       setSuccess(true);
       addToast("Welcome back!", "success");
       

@@ -56,8 +56,14 @@ export const GET_POSTS_QUERY = gql`
         title
         content
         commentsCount
+        likeCount
+        isLiked
         createdAt
         author {
+          _id
+          fullName
+        }
+        likedBy {
           _id
           fullName
         }
@@ -75,12 +81,18 @@ export const GET_POST_QUERY = gql`
       published
       authorId
       commentsCount
+      likeCount
+      isLiked
       createdAt
       updatedAt
       author {
         _id
         fullName
         createdAt
+      }
+      likedBy {
+        _id
+        fullName
       }
     }
   }
@@ -152,8 +164,22 @@ export const UPDATE_COMMENT_MUTATION = gql`
   }
 `;
 
+export interface PaginationInput {
+  page?: number;
+  limit?: number;
+}
+
 export const DELETE_COMMENT_MUTATION = gql`
   mutation DeleteComment($id: ID!) {
     deleteComment(id: $id)
+  }
+`;
+
+export const TOGGLE_POST_LIKE_MUTATION = gql`
+  mutation TogglePostLike($postId: ID!) {
+    togglePostLike(postId: $postId) {
+      liked
+      likeCount
+    }
   }
 `;

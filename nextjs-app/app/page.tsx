@@ -11,6 +11,7 @@ export default function Home() {
   const { data, loading, error, fetchMore } = useQuery<{ posts: PaginatedPosts }>(GET_POSTS_QUERY, {
     variables: { paginationInput: { page: 1, limit: 10 } },
     notifyOnNetworkStatusChange: true,
+    fetchPolicy: "cache-and-network",
   });
 
   const handlePageChange = (newPage: number) => {

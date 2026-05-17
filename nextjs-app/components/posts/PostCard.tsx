@@ -6,6 +6,7 @@ import { Post } from "@/lib/graphql/types";
 import { motion } from "framer-motion";
 import { MessageSquare } from "lucide-react";
 import clsx from "clsx";
+import LikeButton from "./LikeButton";
 
 interface PostCardProps {
   post: Post;
@@ -67,6 +68,7 @@ export default function PostCard({ post, index, featured = false }: PostCardProp
             </p>
 
             <div className="flex items-center gap-2">
+              <LikeButton post={post} showLabel={true} />
               <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface/80 border border-border text-xs font-mono text-textSecondary">
                 <MessageSquare className="w-3.5 h-3.5" />
                 {post.commentsCount} comments
@@ -112,12 +114,15 @@ export default function PostCard({ post, index, featured = false }: PostCardProp
               </div>
             </div>
             
-            <div className={clsx("flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface/50 border border-border text-[10px] font-mono text-textSecondary shrink-0", {
+            <div className={clsx("flex items-center gap-2 shrink-0", {
               "mr-auto": isRightHeavy,
               "ml-auto": !isRightHeavy
             })}>
-              <MessageSquare className="w-3 h-3" />
-              {post.commentsCount}
+              <LikeButton post={post} />
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface/50 border border-border text-[10px] font-mono text-textSecondary">
+                <MessageSquare className="w-3 h-3" />
+                {post.commentsCount}
+              </div>
             </div>
           </div>
         </div>

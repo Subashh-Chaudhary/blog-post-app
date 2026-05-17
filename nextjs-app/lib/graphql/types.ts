@@ -20,6 +20,9 @@ export interface Post {
   authorId: string;
   author?: User | null;
   commentsCount: number;
+  likeCount: number;
+  isLiked: boolean;
+  likedBy?: User[];
   createdAt: string;
   updatedAt: string;
 }
@@ -84,4 +87,10 @@ export interface UpdateCommentInput {
 export interface PaginationInput {
   page?: number;
   limit?: number;
+}
+
+export interface TogglePostLikeResponse {
+  __typename?: string;
+  liked: boolean;
+  likeCount: number;
 }

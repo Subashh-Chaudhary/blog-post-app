@@ -9,12 +9,13 @@ import { useToastStore } from "@/lib/store/useToastStore";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { formatDistanceToNow, format } from "date-fns";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { ArrowLeft, Edit3, Trash2, AlertTriangle } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
 import "highlight.js/styles/atom-one-dark.css";
 import CommentsSection from "@/components/comments/CommentsSection";
+import LikeButton from "@/components/posts/LikeButton";
 
 export default function PostDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
@@ -26,6 +27,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
 
   const { data, loading, error } = useQuery<{ post: Post }>(GET_POST_QUERY, {
     variables: { id: postId },
+    fetchPolicy: "cache-and-network",
   });
 
   const [deletePost, { loading: isDeleting }] = useMutation(DELETE_POST_MUTATION, {
@@ -115,6 +117,17 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
             </div>
           </header>
 
+          <div className="mb-8 flex items-center gap-4">
+            <LikeButton post={post} showLabel={true} />
+            {post.likedBy && post.likedBy.length > 0 && (
+              <span className="text-sm text-textMuted italic">
+                Liked by {post.likedBy[0].fullName}
+                {post.likedBy.length === 2 && ` and ${post.likedBy[1].fullName}`}
+                {post.likedBy.length > 2 && `, ${post.likedBy[1].fullName} and ${post.likedBy.length - 2} others`}
+              </span>
+            )}
+          </div>
+
           <div className="prose prose-invert prose-lg max-w-none prose-headings:font-display prose-headings:font-bold prose-a:text-accent hover:prose-a:text-accentGlow prose-p:leading-relaxed prose-pre:bg-surface/50 prose-pre:border prose-pre:border-border">
             <ReactMarkdown rehypePlugins={[rehypeHighlight]}>
               {post.content}
@@ -156,6 +169,14 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
             <div>
               <div className="text-xs text-textSecondary font-mono mb-1">Read Time</div>
               <div className="font-medium">{readTime} min</div>
+            </div>
+            <div>
+              <div className="text-xs text-textSecondary font-mono mb-1">Likes</div>
+              <div className="font-medium">{post.likeCount}</div>
+            </div>
+            <div>
+              <div className="text-xs text-textSecondary font-mono mb-1">Comments</div>
+              <div className="font-medium">{post.commentsCount}</div>
             </div>
           </div>
 
