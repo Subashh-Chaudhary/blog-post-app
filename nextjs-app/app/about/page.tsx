@@ -27,7 +27,7 @@ export default function AboutPage() {
 
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" as const } },
   };
 
   const features = [
@@ -99,8 +99,8 @@ export default function AboutPage() {
             {features.map((feat, idx) => (
               <motion.div
                 key={idx}
-                whileHover={{ y: -4, borderColor: "rgba(var(--accent-rgb), 0.3)" }}
-                className="glass-panel p-8 rounded-2xl border border-border/50 transition-all flex gap-5"
+                whileHover={{ y: -4 }}
+                className="glass-panel p-8 rounded-2xl border border-border/50 hover:border-accent/30 transition-all duration-300 flex gap-5"
               >
                 <div className="shrink-0 p-3 rounded-xl bg-surface/50 border border-border/30 h-fit">
                   {feat.icon}

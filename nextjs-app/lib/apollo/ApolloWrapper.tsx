@@ -43,7 +43,8 @@ const errorLink = onError((errorOptions: any) => {
         if (!isRefreshing) {
           isRefreshing = true;
           
-          return (fromPromise(
+          return new Observable((observer: any) => {
+            let sub: any = null;
             fetch("/api/auth/refresh", { method: "POST" })
               .then((res) => {
                 if (!res.ok) throw new Error("Refresh failed");
@@ -52,19 +53,40 @@ const errorLink = onError((errorOptions: any) => {
               .then((newAuth) => {
                 useAuthStore.getState().setAuth(newAuth.accessToken, newAuth.user);
                 resolvePendingRequests();
-                return true;
+                
+                // Retry the request with new headers
+                const oldHeaders = operation.getContext().headers;
+                operation.setContext({
+                  headers: {
+                    ...oldHeaders,
+                    authorization: `Bearer ${newAuth.accessToken}`,
+                  },
+                });
+                
+                sub = forward(operation).subscribe({
+                  next: observer.next.bind(observer),
+                  error: observer.error.bind(observer),
+                  complete: observer.complete.bind(observer),
+                });
               })
-              .catch(() => {
+              .catch((refreshErr) => {
                 useAuthStore.getState().clearAuth();
                 fetch("/api/auth/cookie", { method: "DELETE" });
                 window.location.href = "/login";
-                return false;
+                observer.error(refreshErr);
               })
               .finally(() => {
                 isRefreshing = false;
-              })
-          ) as any).flatMap((success: boolean) => {
-            if (success) {
+              });
+
+            return () => {
+              if (sub) sub.unsubscribe();
+            };
+          }) as any;
+        } else {
+          return new Observable((observer: any) => {
+            let sub: any = null;
+            pendingRequests.push(() => {
               const oldHeaders = operation.getContext().headers;
               operation.setContext({
                 headers: {
@@ -72,42 +94,21 @@ const errorLink = onError((errorOptions: any) => {
                   authorization: `Bearer ${useAuthStore.getState().accessToken}`,
                 },
               });
-              return forward(operation);
-            }
-            return forward(operation); // Will likely fail or redirect
-          });
-        } else {
-          return (fromPromise(
-            new Promise<void>((resolve) => {
-              pendingRequests.push(() => resolve());
-            })
-          ) as any).flatMap(() => {
-            const oldHeaders = operation.getContext().headers;
-            operation.setContext({
-              headers: {
-                ...oldHeaders,
-                authorization: `Bearer ${useAuthStore.getState().accessToken}`,
-              },
+              sub = forward(operation).subscribe({
+                next: observer.next.bind(observer),
+                error: observer.error.bind(observer),
+                complete: observer.complete.bind(observer),
+              });
             });
-            return forward(operation);
-          });
+            return () => {
+              if (sub) sub.unsubscribe();
+            };
+          }) as any;
         }
       }
     }
   }
 });
-
-// Helper to convert Promise to Observable
-function fromPromise<T>(promise: Promise<T>) {
-  return new Observable<T>((observer: any) => {
-    promise
-      .then((value) => {
-        observer.next(value);
-        observer.complete();
-      })
-      .catch((err) => observer.error(err));
-  });
-}
 
 const client = new ApolloClient({
   link: from([errorLink, authLink, httpLink]),

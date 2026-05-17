@@ -199,7 +199,7 @@ function CommentItem({ comment, currentUser, onRefresh }: { comment: Comment, cu
                 </button>
                 <button
                   onClick={() => setShowConfirm(true)}
-                  className="p-1.5 text-textSecondary hover:text-accentWarm hover:bg-accentWarm/10 rounded-md transition-colors"
+                  className="p-1.5 text-red-400/80 hover:text-red-400 hover:bg-red-500/10 rounded-md transition-colors"
                   title="Delete"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
@@ -246,9 +246,9 @@ function CommentItem({ comment, currentUser, onRefresh }: { comment: Comment, cu
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
-                className="bg-accentWarm/5 border border-accentWarm/20 rounded-lg p-3"
+                className="bg-red-500/5 border border-red-500/20 rounded-lg p-3"
               >
-                <p className="text-xs text-accentWarm mb-3">Delete this comment? This cannot be undone.</p>
+                <p className="text-xs text-red-400 mb-3">Delete this comment? This cannot be undone.</p>
                 <div className="flex gap-2">
                   <button
                     onClick={() => setShowConfirm(false)}
@@ -259,7 +259,7 @@ function CommentItem({ comment, currentUser, onRefresh }: { comment: Comment, cu
                   </button>
                   <button
                     onClick={() => deleteComment({ variables: { id: comment._id } })}
-                    className="flex-1 py-1 text-xs font-medium bg-accentWarm text-white rounded hover:bg-accentWarm/90"
+                    className="flex-1 py-1 text-xs font-medium bg-red-600 text-white rounded hover:bg-red-700"
                     disabled={isDeleting}
                   >
                     {isDeleting ? "Deleting..." : "Delete"}

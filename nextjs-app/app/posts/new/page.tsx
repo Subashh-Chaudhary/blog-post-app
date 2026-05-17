@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { motion, AnimatePresence } from "framer-motion";
 import { useMutation } from "@apollo/client/react";
-import { CREATE_POST_MUTATION } from "@/lib/graphql/documents";
+import { CREATE_POST_MUTATION, GET_POSTS_QUERY } from "@/lib/graphql/documents";
 import { useToastStore } from "@/lib/store/useToastStore";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { useRouter } from "next/navigation";
@@ -34,7 +34,14 @@ export default function NewPostPage() {
     resolver: zodResolver(postSchema),
   });
 
-  const [createPost] = useMutation(CREATE_POST_MUTATION);
+  const [createPost] = useMutation(CREATE_POST_MUTATION, {
+    refetchQueries: [
+      {
+        query: GET_POSTS_QUERY,
+        variables: { paginationInput: { page: 1, limit: 10 } }
+      }
+    ]
+  });
 
   const onSubmit = async (data: PostFormValues) => {
     try {

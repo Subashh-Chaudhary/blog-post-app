@@ -2,7 +2,7 @@
 
 import { use, useState } from "react";
 import { useQuery, useMutation } from "@apollo/client/react";
-import { GET_POST_QUERY, DELETE_POST_MUTATION } from "@/lib/graphql/documents";
+import { GET_POST_QUERY, DELETE_POST_MUTATION, GET_POSTS_QUERY } from "@/lib/graphql/documents";
 import { Post } from "@/lib/graphql/types";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { useToastStore } from "@/lib/store/useToastStore";
@@ -30,6 +30,12 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
 
   const [deletePost, { loading: isDeleting }] = useMutation(DELETE_POST_MUTATION, {
     variables: { id: postId },
+    refetchQueries: [
+      {
+        query: GET_POSTS_QUERY,
+        variables: { paginationInput: { page: 1, limit: 10 } }
+      }
+    ],
     onCompleted: () => {
       addToast("Post deleted successfully", "success");
       router.push("/");
@@ -167,7 +173,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
               {!showDeleteConfirm ? (
                 <button
                   onClick={() => setShowDeleteConfirm(true)}
-                  className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg border border-border bg-surface/50 hover:bg-accentWarm/10 hover:border-accentWarm/30 hover:text-accentWarm transition-colors text-sm font-medium"
+                  className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg border border-red-500/30 bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 transition-colors text-sm font-medium"
                 >
                   <Trash2 className="w-4 h-4" /> Delete Post
                 </button>
@@ -175,9 +181,9 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
-                  className="p-4 rounded-xl border border-accentWarm/30 bg-accentWarm/5 overflow-hidden"
+                  className="p-4 rounded-xl border border-red-500/30 bg-red-500/5 overflow-hidden"
                 >
-                  <div className="flex gap-3 mb-4 text-accentWarm">
+                  <div className="flex gap-3 mb-4 text-red-400">
                     <AlertTriangle className="w-5 h-5 shrink-0" />
                     <p className="text-sm font-medium">Are you sure? This action cannot be undone.</p>
                   </div>
@@ -191,7 +197,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
                     </button>
                     <button
                       onClick={() => deletePost()}
-                      className="flex-1 py-2 text-sm font-medium rounded-lg bg-accentWarm text-white hover:bg-accentWarm/90 transition-colors"
+                      className="flex-1 py-2 text-sm font-medium rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors"
                       disabled={isDeleting}
                     >
                       {isDeleting ? "Deleting..." : "Confirm"}
