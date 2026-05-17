@@ -3,53 +3,53 @@
   "default_password": "password123",
   "users": [
     {
-      "fullName": "James Cervantes",
-      "email": "claychristina@example.net",
+      "fullName": "Sophia Johnson",
+      "email": "stephenfowler@example.net",
       "password": "password123"
     },
     {
-      "fullName": "Timothy Beasley",
-      "email": "bianca92@example.com",
+      "fullName": "Paul Sanchez",
+      "email": "philliptorres@example.com",
       "password": "password123"
     },
     {
-      "fullName": "Raymond Anderson",
-      "email": "gnixon@example.net",
+      "fullName": "Justin Pierce",
+      "email": "jennifer21@example.net",
       "password": "password123"
     },
     {
-      "fullName": "Cindy Carney",
-      "email": "richardsonsydney@example.org",
+      "fullName": "Mary Hunter",
+      "email": "troymartinez@example.org",
       "password": "password123"
     },
     {
-      "fullName": "Michael Fletcher",
-      "email": "lisa24@example.org",
+      "fullName": "Jessica Campbell",
+      "email": "jonesemily@example.org",
       "password": "password123"
     },
     {
-      "fullName": "Tina Cook",
-      "email": "iansmith@example.net",
+      "fullName": "Robin Holder",
+      "email": "nashcheryl@example.net",
       "password": "password123"
     },
     {
-      "fullName": "Jean Michael",
-      "email": "yschneider@example.org",
+      "fullName": "Kimberly Moore",
+      "email": "brandi45@example.org",
       "password": "password123"
     },
     {
-      "fullName": "Ryan Torres",
-      "email": "kennethwilkerson@example.net",
+      "fullName": "Tiffany Wilcox",
+      "email": "michelleparrish@example.net",
       "password": "password123"
     },
     {
-      "fullName": "Michelle Little",
-      "email": "penashane@example.com",
+      "fullName": "Brandi Brown",
+      "email": "williammoore@example.net",
       "password": "password123"
     },
     {
-      "fullName": "Corey Anderson",
-      "email": "williambowers@example.net",
+      "fullName": "Mrs. Jaclyn Morgan",
+      "email": "briangonzalez@example.net",
       "password": "password123"
     }
   ]

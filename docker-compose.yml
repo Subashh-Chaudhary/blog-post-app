@@ -1,22 +1,120 @@
+# =============================================================================
+# docker-compose.yml  — DEVELOPMENT ONLY
+# =============================================================================
+
+name: blogpost-dev
+
 services:
+
+  # ── MongoDB ──────────────────────────────────────────────────────────────────
   mongo:
     image: mongo:7.0
     container_name: blogpost-db
     restart: unless-stopped
+
     ports:
-      - "${MONGO_PORT}:27017"
+      # Expose to host for GUI tools (MongoDB Compass, mongosh, etc.)
+      - "${MONGO_PORT:-27017}:27017"
+
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
       MONGO_INITDB_DATABASE: ${MONGO_DATABASE}
+
     volumes:
       - mongo_data:/data/db
+
     healthcheck:
-      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok", "mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@127.0.0.1:27017/admin?authSource=admin"]
+      test:
+        [
+          "CMD",
+          "mongosh",
+          "--quiet",
+          "--eval",
+          "db.adminCommand('ping').ok",
+          "mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@127.0.0.1:27017/admin?authSource=admin",
+        ]
       interval: 15s
       timeout: 10s
       retries: 5
       start_period: 30s
 
+    networks:
+      - blogpost-network
+
+  # ── NestJS Backend ───────────────────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend-service
+      dockerfile: Dockerfile
+
+    container_name: blogpost-backend
+    restart: unless-stopped
+
+    ports:
+      - "${BACKEND_PORT:-5000}:5000"
+
+    env_file:
+      - ./backend-service/.env
+
+    environment:
+      MONGODB_URI: mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongo:27017/${MONGO_DATABASE}?authSource=admin
+      NODE_ENV: development
+
+    volumes:
+      - ./backend-service:/app
+      - /app/node_modules
+
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+    networks:
+      - blogpost-network
+
+  # ── Next.js Frontend ─────────────────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./nextjs-app
+      dockerfile: Dockerfile
+
+    container_name: blogpost-frontend
+    restart: unless-stopped
+
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+
+    env_file:
+      - ./nextjs-app/.env.local
+
+    environment:
+      NODE_ENV: development
+      WATCHPACK_POLLING: "true"
+      CHOKIDAR_USEPOLLING: "true"
+      NEXT_PUBLIC_GRAPHQL_API_URL: http://localhost:${BACKEND_PORT:-5000}/graphql
+      GRAPHQL_INTERNAL_URL: http://backend:${BACKEND_PORT:-5000}/graphql
+      BACKEND_INTERNAL_URL: http://backend:${BACKEND_PORT:-5000}
+
+    volumes:
+      - ./nextjs-app:/app
+      - /app/node_modules
+      - /app/.next
+
+    depends_on:
+      - backend
+
+    networks:
+      - blogpost-network
+
+# =============================================================================
+# Named Volumes
+# =============================================================================
 volumes:
   mongo_data:
+
+# =============================================================================
+# Networks
+# =============================================================================
+networks:
+  blogpost-network:
+    driver: bridge
