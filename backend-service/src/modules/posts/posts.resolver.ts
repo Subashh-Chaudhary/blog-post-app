@@ -8,6 +8,9 @@ import { GqlAuthGuard } from '../../common/guards/gql-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { User } from '../users/models/user.model';
 import { UsersService } from '../users/users.service';
+import { PaginationInput } from '../../common/dto/pagination.input';
+import { PaginatedPosts } from './models/paginated-posts.model';
+import { IPaginatedType } from '../../common/interfaces/paginated.interface';
 
 @Resolver(() => Post)
 export class PostsResolver {
@@ -16,9 +19,12 @@ export class PostsResolver {
     private readonly usersService: UsersService,
   ) {}
 
-  @Query(() => [Post], { name: 'posts' })
-  async getPosts(): Promise<Post[]> {
-    return this.postsService.getPosts();
+  @Query(() => PaginatedPosts, { name: 'posts' })
+  async getPosts(
+    @Args('paginationInput', { nullable: true }) paginationInput?: PaginationInput,
+  ): Promise<IPaginatedType<Post>> {
+    const input = paginationInput || new PaginationInput();
+    return this.postsService.getPosts(input);
   }
 
   @Query(() => Post, { name: 'post' })

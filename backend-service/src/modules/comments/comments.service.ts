@@ -5,6 +5,8 @@ import { UpdateCommentInput } from './dto/update-comment.input';
 import { Comment } from './models/comment.model';
 import { User } from '../users/models/user.model';
 import { PostsService } from '../posts/posts.service';
+import { PaginationInput } from '../../common/dto/pagination.input';
+import { IPaginatedType } from '../../common/interfaces/paginated.interface';
 
 @Injectable()
 export class CommentsService {
@@ -25,8 +27,21 @@ export class CommentsService {
     return comment;
   }
 
-  async getCommentsByPostId(postId: string): Promise<Comment[]> {
-    return this.commentsRepository.findAllByPostId(postId);
+  async getCommentsByPostId(postId: string, paginationInput: PaginationInput): Promise<IPaginatedType<Comment>> {
+    const { page, limit } = paginationInput;
+    const skip = (page - 1) * limit;
+    const { items, totalCount } = await this.commentsRepository.findPaginatedByPostId(postId, skip, limit);
+    const totalPages = Math.ceil(totalCount / limit);
+
+    return {
+      items,
+      totalCount,
+      currentPage: page,
+      totalPages,
+      limit,
+      hasNextPage: page < totalPages,
+      hasPreviousPage: page > 1,
+    };
   }
 
   async getCommentById(id: string): Promise<Comment> {

@@ -16,8 +16,12 @@ export class CommentsRepository {
     return createdComment.save();
   }
 
-  async findAllByPostId(postId: string): Promise<Comment[]> {
-    return this.commentModel.find({ postId }).exec();
+  async findPaginatedByPostId(postId: string, skip: number, limit: number): Promise<{ items: Comment[]; totalCount: number }> {
+    const [items, totalCount] = await Promise.all([
+      this.commentModel.find({ postId }).sort({ createdAt: -1 }).skip(skip).limit(limit).exec(),
+      this.commentModel.countDocuments({ postId }).exec(),
+    ]);
+    return { items, totalCount };
   }
 
   async findById(id: string): Promise<Comment | null> {

@@ -15,8 +15,12 @@ export class PostsRepository {
     return createdPost.save();
   }
 
-  async findAll(): Promise<Post[]> {
-    return this.postModel.find().exec();
+  async findPaginated(skip: number, limit: number): Promise<{ items: Post[]; totalCount: number }> {
+    const [items, totalCount] = await Promise.all([
+      this.postModel.find().sort({ createdAt: -1 }).skip(skip).limit(limit).exec(),
+      this.postModel.countDocuments().exec(),
+    ]);
+    return { items, totalCount };
   }
 
   async findById(id: string): Promise<Post | null> {

@@ -8,6 +8,9 @@ import { GqlAuthGuard } from '../../common/guards/gql-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { User } from '../users/models/user.model';
 import { UsersService } from '../users/users.service';
+import { PaginationInput } from '../../common/dto/pagination.input';
+import { PaginatedComments } from './models/paginated-comments.model';
+import { IPaginatedType } from '../../common/interfaces/paginated.interface';
 
 @Resolver(() => Comment)
 export class CommentsResolver {
@@ -16,9 +19,13 @@ export class CommentsResolver {
     private readonly usersService: UsersService,
   ) {}
 
-  @Query(() => [Comment], { name: 'commentsByPost' })
-  async getCommentsByPost(@Args('postId', { type: () => ID }) postId: string): Promise<Comment[]> {
-    return this.commentsService.getCommentsByPostId(postId);
+  @Query(() => PaginatedComments, { name: 'commentsByPost' })
+  async getCommentsByPost(
+    @Args('postId', { type: () => ID }) postId: string,
+    @Args('paginationInput', { nullable: true }) paginationInput?: PaginationInput,
+  ): Promise<IPaginatedType<Comment>> {
+    const input = paginationInput || new PaginationInput();
+    return this.commentsService.getCommentsByPostId(postId, input);
   }
 
   @ResolveField(() => User, { nullable: true })

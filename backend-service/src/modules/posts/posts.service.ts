@@ -4,6 +4,8 @@ import { CreatePostInput } from './dto/create-post.input';
 import { UpdatePostInput } from './dto/update-post.input';
 import { Post } from './models/post.model';
 import { User } from '../users/models/user.model';
+import { PaginationInput } from '../../common/dto/pagination.input';
+import { IPaginatedType } from '../../common/interfaces/paginated.interface';
 
 @Injectable()
 export class PostsService {
@@ -13,8 +15,21 @@ export class PostsService {
     return this.postsRepository.create(createPostInput, currentUser._id.toString());
   }
 
-  async getPosts(): Promise<Post[]> {
-    return this.postsRepository.findAll();
+  async getPosts(paginationInput: PaginationInput): Promise<IPaginatedType<Post>> {
+    const { page, limit } = paginationInput;
+    const skip = (page - 1) * limit;
+    const { items, totalCount } = await this.postsRepository.findPaginated(skip, limit);
+    const totalPages = Math.ceil(totalCount / limit);
+
+    return {
+      items,
+      totalCount,
+      currentPage: page,
+      totalPages,
+      limit,
+      hasNextPage: page < totalPages,
+      hasPreviousPage: page > 1,
+    };
   }
 
   async getPostById(id: string): Promise<Post> {

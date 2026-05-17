@@ -52,6 +52,31 @@ type Mutation {
   updatePost(id: ID!, updatePostInput: UpdatePostInput!): Post!
 }
 
+type PaginatedComments {
+  currentPage: Int!
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  items: [Comment]
+  limit: Int!
+  totalCount: Int!
+  totalPages: Int!
+}
+
+type PaginatedPosts {
+  currentPage: Int!
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  items: [Post]
+  limit: Int!
+  totalCount: Int!
+  totalPages: Int!
+}
+
+input PaginationInput {
+  limit: Int! = 10
+  page: Int! = 1
+}
+
 type Post {
   _id: ID!
   author: User
@@ -65,9 +90,9 @@ type Post {
 }
 
 type Query {
-  commentsByPost(postId: ID!): [Comment!]!
+  commentsByPost(paginationInput: PaginationInput, postId: ID!): PaginatedComments!
   post(id: ID!): Post!
-  posts: [Post!]!
+  posts(paginationInput: PaginationInput): PaginatedPosts!
 }
 
 input RegisterDto {
