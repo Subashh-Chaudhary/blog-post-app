@@ -6,10 +6,15 @@ import { Post } from './models/post.model';
 import { User } from '../users/models/user.model';
 import { PaginationInput } from '../../common/dto/pagination.input';
 import { IPaginatedType } from '../../common/interfaces/paginated.interface';
+import { PostLikesRepository } from './post-likes.repository';
+import { TogglePostLikeResponse } from './dto/toggle-post-like.response';
 
 @Injectable()
 export class PostsService {
-  constructor(private readonly postsRepository: PostsRepository) {}
+  constructor(
+    private readonly postsRepository: PostsRepository,
+    private readonly postLikesRepository: PostLikesRepository,
+  ) {}
 
   async createPost(createPostInput: CreatePostInput, currentUser: User): Promise<Post> {
     return this.postsRepository.create(createPostInput, currentUser._id.toString());
@@ -61,5 +66,26 @@ export class PostsService {
 
   async incrementCommentsCount(id: string, amount: number): Promise<void> {
     await this.postsRepository.incrementCommentsCount(id, amount);
+  }
+
+  async togglePostLike(postId: string, userId: string): Promise<TogglePostLikeResponse> {
+    const post = await this.getPostById(postId);
+    const existingLike = await this.postLikesRepository.findByUserAndPost(userId, postId);
+
+    if (existingLike) {
+      await this.postLikesRepository.delete(postId, userId);
+      const updatedPost = await this.postsRepository.incrementLikeCount(postId, -1);
+      return {
+        liked: false,
+        likeCount: updatedPost ? updatedPost.likeCount : Math.max(0, post.likeCount - 1),
+      };
+    } else {
+      await this.postLikesRepository.create(postId, userId);
+      const updatedPost = await this.postsRepository.incrementLikeCount(postId, 1);
+      return {
+        liked: true,
+        likeCount: updatedPost ? updatedPost.likeCount : post.likeCount + 1,
+      };
+    }
   }
 }

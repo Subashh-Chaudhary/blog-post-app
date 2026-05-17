@@ -28,6 +28,16 @@ export class Post {
   @Prop({ default: 0 })
   commentsCount: number;
 
+  @Field(() => Int)
+  @Prop({ default: 0 })
+  likeCount: number;
+
+  @Field(() => Boolean)
+  isLiked: boolean;
+
+  @Field(() => [User])
+  likedBy: User[];
+
   @Field(() => User, { nullable: true })
   author: User;
 

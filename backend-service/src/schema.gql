@@ -49,6 +49,7 @@ type Mutation {
   login(loginDto: LoginDto!): AuthResponse!
   refresh(refreshToken: String!): AuthResponse!
   register(registerDto: RegisterDto!): AuthResponse!
+  togglePostLike(postId: ID!): TogglePostLikeResponse!
   updateComment(id: ID!, updateCommentInput: UpdateCommentInput!): Comment!
   updatePost(id: ID!, updatePostInput: UpdatePostInput!): Post!
 }
@@ -85,6 +86,9 @@ type Post {
   commentsCount: Int!
   content: String!
   createdAt: DateTime!
+  isLiked: Boolean!
+  likeCount: Int!
+  likedBy: [User!]!
   published: Boolean!
   title: String!
   updatedAt: DateTime!
@@ -100,6 +104,11 @@ input RegisterDto {
   email: String!
   fullName: String!
   password: String!
+}
+
+type TogglePostLikeResponse {
+  likeCount: Int!
+  liked: Boolean!
 }
 
 input UpdateCommentInput {

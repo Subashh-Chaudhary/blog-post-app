@@ -38,4 +38,12 @@ export class PostsRepository {
   async incrementCommentsCount(id: string, amount: number): Promise<void> {
     await this.postModel.findByIdAndUpdate(id, { $inc: { commentsCount: amount } }).exec();
   }
+
+  async incrementLikeCount(id: string, amount: number): Promise<Post | null> {
+    return this.postModel.findByIdAndUpdate(
+      id,
+      { $inc: { likeCount: amount } },
+      { returnDocument: 'after' },
+    ).exec();
+  }
 }
