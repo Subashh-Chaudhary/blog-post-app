@@ -80,6 +80,7 @@ export const GET_POST_QUERY = gql`
       author {
         _id
         fullName
+        createdAt
       }
     }
   }
@@ -99,6 +100,7 @@ export const UPDATE_POST_MUTATION = gql`
     updatePost(id: $id, updatePostInput: $input) {
       _id
       title
+      content
     }
   }
 `;
@@ -123,6 +125,7 @@ export const GET_COMMENTS_QUERY = gql`
         content
         userId
         createdAt
+        updatedAt
         user {
           fullName
         }

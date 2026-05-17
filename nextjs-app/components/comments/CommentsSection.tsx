@@ -276,7 +276,7 @@ function CommentItem({ comment, currentUser, onRefresh }: { comment: Comment, cu
                 <p className="text-sm text-textSecondary whitespace-pre-wrap leading-relaxed">
                   {comment.content}
                 </p>
-                {comment.createdAt !== comment.updatedAt && (
+                {comment.updatedAt && comment.createdAt !== comment.updatedAt && (
                   <span className="text-[10px] text-textMuted font-mono block mt-1">(edited)</span>
                 )}
               </motion.div>

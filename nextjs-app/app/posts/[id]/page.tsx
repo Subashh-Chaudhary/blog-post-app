@@ -138,7 +138,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
             </div>
             <div>
               <div className="font-medium text-lg">{post.author?.fullName || "Unknown"}</div>
-              <div className="text-sm text-textSecondary" suppressHydrationWarning>Joined {post.author ? formatDistanceToNow(new Date(!isNaN(Number(post.author.createdAt)) ? Number(post.author.createdAt) : post.author.createdAt), { addSuffix: true }) : "recently"}</div>
+              <div className="text-sm text-textSecondary" suppressHydrationWarning>Joined {post.author?.createdAt ? formatDistanceToNow(new Date(!isNaN(Number(post.author.createdAt)) ? Number(post.author.createdAt) : post.author.createdAt), { addSuffix: true }) : "recently"}</div>
             </div>
           </div>
           
