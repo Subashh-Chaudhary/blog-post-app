@@ -1,0 +1,7 @@
+{
+  "venvPath": "scripts",
+  "venv": "venv",
+  "extraPaths": [
+    "scripts"
+  ]
+}

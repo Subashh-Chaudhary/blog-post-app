@@ -1,98 +1,92 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# NestJS GraphQL Backend Service
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A highly structured, modular, and performant headless API gateway engineered with **NestJS (v11)** and **GraphQL (Apollo Server v5)**. This service acts as the orchestration and data validation engine for the blog platform, connecting directly to **MongoDB** using **Mongoose (v9)**.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+---
 
-## Description
+## 1. Architectural Philosophy
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+The backend application is designed with **domain isolation** and **strict boundary interfaces** to achieve high maintainability and horizontal scalability. By following the **Dependency Injection (DI)** design pattern native to NestJS, each feature domain is self-contained.
 
-## Project setup
-
-```bash
-$ pnpm install
+```
++-------------------------------------------------------------------+
+|                     GraphQL Client Request                        |
++-------------------------------------------------------------------+
+                                  |
+                                  v
++-------------------------------------------------------------------+
+|               GraphQL Context / Auth Guard checks                 |
++-------------------------------------------------------------------+
+                                  |
+                                  v
++-------------------------------------------------------------------+
+|        Feature Resolvers (GraphQL Field & Mutation Mapping)       |
++-------------------------------------------------------------------+
+                                  |
+                                  v
++-------------------------------------------------------------------+
+|       Feature Services (Business Logic & Transactions Layer)      |
++-------------------------------------------------------------------+
+                                  |
+                                  v
++-------------------------------------------------------------------+
+|      Feature Repositories (Data Access & Mongoose Abstraction)    |
++-------------------------------------------------------------------+
+                                  |
+                                  v
++-------------------------------------------------------------------+
+|                       MongoDB Database (MDB)                      |
++-------------------------------------------------------------------+
 ```
 
-## Compile and run the project
+### Core Architecture Layers
 
-```bash
-# development
-$ pnpm run start
+1. **Resolvers (`*.resolver.ts`)**: Defines the GraphQL entry points (Queries, Mutations, and Field Resolvers). Resolvers handle incoming parameter maps, invoke DTO-level verification pipes, and extract context metrics such as the current authenticated user.
+2. **Services (`*.service.ts`)**: Houses all transactional domain rules and business logic. Services are strictly agnostic to the transport layer (they do not know about GraphQL or HTTP context), making them reusable across different protocol layers.
+3. **Repositories (`*.repository.ts`)**: Standardizes the persistence layer. By abstracting the direct Mongoose model operations behind a repository interface, we isolate Mongoose queries, ensure reliable unit testing via mock injection, and allow for effortless caching transitions.
+4. **Models & Schemas (`models/*.model.ts`)**: Code-first model declarations. By using the `@nestjs/graphql` decorators alongside `@nestjs/mongoose` schemas on a single class, we enforce unified TypeScript type mapping, Mongoose model definitions, and auto-generated GraphQL schema nodes simultaneously.
 
-# watch mode
-$ pnpm run start:dev
+---
 
-# production mode
-$ pnpm run start:prod
-```
+## 2. Feature Module Architecture
 
-## Run tests
+The codebase is organized into **Feature Modules** inside `/src/modules`. Each module encapsulates a cohesive domain boundary:
 
-```bash
-# unit tests
-$ pnpm run test
+* **[Auth Module](file:///home/subash/Desktop/ebpearls/blog-post/backend-service/src/modules/auth)**: Manages authentication flows, JWT token issuance, sign-in validation logic, and password hashing using bcrypt.
+* **[Users Module](file:///home/subash/Desktop/ebpearls/blog-post/backend-service/src/modules/users)**: Handles user registration, profile queries, password resets, and user lookup helpers.
+* **[Posts Module](file:///home/subash/Desktop/ebpearls/blog-post/backend-service/src/modules/posts)**: Coordinates post creations, editing history, pagination logic, search parameters, and likes integration.
+* **[Comments Module](file:///home/subash/Desktop/ebpearls/blog-post/backend-service/src/modules/comments)**: Governs comment nesting (parent-child relationships), thread hierarchies, and deletion cascade triggers.
 
-# e2e tests
-$ pnpm run test:e2e
+---
 
-# test coverage
-$ pnpm run test:cov
-```
+## 3. High-Performance Strategies
 
-## Deployment
+* **Request-Scoped DataLoaders**: Features class-based dataloaders (`UserDataLoader` and `PostLikeDataLoader`) to completely resolve the GraphQL **N+1 query problem**. These are instantiated per incoming request tick, consolidating database calls into streamlined bulk operations.
+* **Compound Database Indexing**: Mongoose models feature explicit unique keys, sparse keys, and compound keys (such as `[postId, userId]` for post likes) to ensure O(1) checks during toggle queries.
+* **Strict Validation Pipeline**: A global validation pipeline executes validation before request processing using `class-validator` decorators. Invalid queries are stopped at the gateway layer, returning clear structure-conforming validation reports to the client.
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+---
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+## 4. In-Depth Documentation Index
 
-```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
-```
+Navigate through detailed system designs for the backend infrastructure:
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### ⚙️ Core Subsystem Docs
+* **[System Lifecycle & Request Flow](file:///home/subash/Desktop/ebpearls/blog-post/backend-service/docs/architecture.md)** — Architectural pathways, hooks, guards, decorators, and data-flow sequences.
+* **[GraphQL Engine & Resolver Patterns](file:///home/subash/Desktop/ebpearls/blog-post/backend-service/docs/graphql.md)** — Code-first structure, DTO setups, field resolvers, and context utilities.
+* **[Stateless JWT Authentication](file:///home/subash/Desktop/ebpearls/blog-post/backend-service/docs/authentication.md)** — Security architecture, token parsing, and guards.
+* **[N+1 Resolution & DataLoaders](file:///home/subash/Desktop/ebpearls/blog-post/backend-service/docs/dataloader.md)** — Batching keys, request-scoped caches, and loaders relationship.
+* **[MongoDB & Mongoose Schema Design](file:///home/subash/Desktop/ebpearls/blog-post/backend-service/docs/database.md)** — Models design system, indexing rules, and transaction parameters.
+* **[Global DTO Validation Pipeline](file:///home/subash/Desktop/ebpearls/blog-post/backend-service/docs/validation.md)** — Class-validator rules, pipes, and custom decorators.
+* **[Error Formatting & Exception Filters](file:///home/subash/Desktop/ebpearls/blog-post/backend-service/docs/error-handling.md)** — Custom formatters, HTTP to GraphQL errors translation.
+* **[Pagination Standards](file:///home/subash/Desktop/ebpearls/blog-post/backend-service/docs/pagination.md)** — Standard DTOs for page lists, cursor structure, and mongoose offsets.
 
-## Resources
+### 📁 Structure & Conventions
+* **[Backend Code Conventions](file:///home/subash/Desktop/ebpearls/blog-post/backend-service/docs/conventions.md)** — Code formatting, linting rules, naming guides, and testing protocols.
+* **[Backend Directory Layout](file:///home/subash/Desktop/ebpearls/blog-post/backend-service/docs/folder-structure.md)** — Layers layout and architectural file boundaries.
 
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+### 🏷️ Domain Modules Docs
+* **[Users Domain Module](file:///home/subash/Desktop/ebpearls/blog-post/backend-service/docs/users.md)** — Fields schema, authentication state, validation boundaries.
+* **[Posts Domain Module](file:///home/subash/Desktop/ebpearls/blog-post/backend-service/docs/posts.md)** — Relations, pagination mapping, authorizations.
+* **[Comments Domain Module](file:///home/subash/Desktop/ebpearls/blog-post/backend-service/docs/comments.md)** — Nested trees logic, Cascade deletions, and relation mapping.
+* **[Likes Domain Module](file:///home/subash/Desktop/ebpearls/blog-post/backend-service/docs/likes.md)** — High-volume toggles, compound indices, performance checks.
