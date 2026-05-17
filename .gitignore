@@ -1,0 +1,67 @@
+# =============================================================================
+# Root .gitignore — MONOREPO DEVELOPMENT ENVIRONMENT
+# =============================================================================
+
+# ── Python / Seeding Scripts ──────────────────────────────────────────────────
+# NEVER commit Python bytecode compilation caches or virtual environments!
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.cache
+nosetests.xml
+coverage.xml
+*,cover
+.hypothesis/
+.pytest_cache/
+
+# ── Node.js / Packages ────────────────────────────────────────────────────────
+# Enforce node_modules isolation. They are built fresh inside the containers.
+**/node_modules/
+.pnpm-store/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ── Next.js / Frontend Builds ─────────────────────────────────────────────────
+# Next.js build output directory and build cache.
+nextjs-app/.next/
+nextjs-app/out/
+*.tsbuildinfo
+
+# ── NestJS / Backend Builds ───────────────────────────────────────────────────
+# NestJS production compile target.
+backend-service/dist/
+
+# ── Environment Secrets & Configs ─────────────────────────────────────────────
+# Do not commit real credential files. Only .env.example should be tracked.
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+backend-service/.env
+nextjs-app/.env.local
+
+# ── IDEs, Editors & OS Files ──────────────────────────────────────────────────
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/launch.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+Thumbs.db

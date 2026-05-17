@@ -7,7 +7,7 @@ fake = Faker()
 
 # Standard bcrypt hash for "password123"
 # Using a static hash is much faster for seeding and standard practice for dummy data
-DEFAULT_PASSWORD_HASH = "$2b$10$EpRnTzVlqHNP0.fUbXUwSOyuiCR/L5O3U2H30.VnS/V/I9.Q.mQHK"
+DEFAULT_PASSWORD_HASH = "$2b$10$wJkC5QP9/GjBElFlM7UJ4OmBa6M17fWZDgaPHMpBlzpUKOM3t67W."
 
 def generate_users(count: int) -> List[Dict[str, Any]]:
     users = []

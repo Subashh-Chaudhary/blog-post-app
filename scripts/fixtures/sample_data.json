@@ -3,53 +3,53 @@
   "default_password": "password123",
   "users": [
     {
-      "fullName": "Sophia Johnson",
-      "email": "stephenfowler@example.net",
+      "fullName": "Casey Smith",
+      "email": "tuckeralexandra@example.net",
       "password": "password123"
     },
     {
-      "fullName": "Paul Sanchez",
-      "email": "philliptorres@example.com",
+      "fullName": "Noah Lopez",
+      "email": "ramseybrad@example.com",
       "password": "password123"
     },
     {
-      "fullName": "Justin Pierce",
-      "email": "jennifer21@example.net",
+      "fullName": "Kimberly Knox",
+      "email": "susanfrank@example.net",
       "password": "password123"
     },
     {
-      "fullName": "Mary Hunter",
-      "email": "troymartinez@example.org",
+      "fullName": "Joshua Sullivan",
+      "email": "johnathanponce@example.net",
       "password": "password123"
     },
     {
-      "fullName": "Jessica Campbell",
-      "email": "jonesemily@example.org",
+      "fullName": "Jessica Cohen",
+      "email": "amyfrancis@example.com",
       "password": "password123"
     },
     {
-      "fullName": "Robin Holder",
-      "email": "nashcheryl@example.net",
+      "fullName": "Lori Thomas",
+      "email": "benjamin21@example.com",
       "password": "password123"
     },
     {
-      "fullName": "Kimberly Moore",
-      "email": "brandi45@example.org",
+      "fullName": "Alicia Hunter",
+      "email": "melodypratt@example.net",
       "password": "password123"
     },
     {
-      "fullName": "Tiffany Wilcox",
-      "email": "michelleparrish@example.net",
+      "fullName": "Heather Howard",
+      "email": "williamsdevon@example.net",
       "password": "password123"
     },
     {
-      "fullName": "Brandi Brown",
-      "email": "williammoore@example.net",
+      "fullName": "Sarah Becker",
+      "email": "vbrown@example.net",
       "password": "password123"
     },
     {
-      "fullName": "Mrs. Jaclyn Morgan",
-      "email": "briangonzalez@example.net",
+      "fullName": "Glen Sanchez",
+      "email": "combspatricia@example.org",
       "password": "password123"
     }
   ]
