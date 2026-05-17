@@ -54,11 +54,13 @@ export default function LoginPage() {
 
       setAuth(authData.accessToken, authData.user);
       
-      // Clear Apollo cache and refetch active queries with the new token
+      // Clear the Apollo cache without immediately re-running active queries.
+      // resetStore() would re-fire all queries before React has committed the
+      // new auth state, risking a 401 race. clearStore() is safe here.
       try {
-        await client.resetStore();
-      } catch (e) {
-        // Ignored if queries fail during reset
+        await client.clearStore();
+      } catch {
+        // Silently ignore — cache clear failure is non-critical.
       }
 
       setSuccess(true);

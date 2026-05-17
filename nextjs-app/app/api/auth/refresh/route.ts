@@ -10,7 +10,8 @@ export async function POST() {
       return NextResponse.json({ error: 'No refresh token' }, { status: 401 });
     }
 
-    const graphqlUrl = process.env.NEXT_PUBLIC_GRAPHQL_API_URL;
+    const graphqlUrl =
+      process.env.GRAPHQL_INTERNAL_URL ?? process.env.NEXT_PUBLIC_GRAPHQL_API_URL;
     if (!graphqlUrl) {
       return NextResponse.json({ error: 'GraphQL API URL is not configured' }, { status: 500 });
     }
